@@ -2,51 +2,30 @@
 /**
  * Created by PhpStorm.
  * User: asus
- * Date: 2020/5/18
- * Time: 14:30
+ * Date: 2020/5/19
+ * Time: 15:07
  */
 namespace Tangzhixing1218\Listen;
-use Illuminate\Support\Facades\Redis;
 use Tangzhixing1218\Listen\Exception\BlackListException;
 
-class ListenIp
+class ForbiddenTool
 {
-    protected $request_max_num;
-    protected $black_expire;
-    protected $ip_expire;
-    public function __construct(int $request_max_num,$black_expire,$ip_expire)
+    protected $black_array;
+
+    public function __construct($black_array)
     {
-        $this->request_max_num = $request_max_num;
-        $this->black_expire = $black_expire;
-        $this->ip_expire = $ip_expire;
+        $this->black_array = $black_array;
     }
 
     public function start()
     {
-        //获取客户端ip地址
         $ip = $this->getIp();
-
-        //获取url信息
-        $self = $_SERVER["REQUEST_URI"];//获取网页地址
-//        $methon = $_SERVER['REQUEST_METHOD'];//客户端请求方法
-        //判断当前ip是否访问过该url
-        $request_num = Redis::hget($ip,$self);
-        if($request_num){
-            //达到访问上限,加入黑名单,且拒绝访问
-            if($request_num>=$this->request_max_num){
-
-                throw new BlackListException('该ip访问过于频繁，请稍后再试');
-            }
-            //访问次数+1
-            Redis::HINCRBY($ip,$self,1);
-        }else{
-            Redis::hset($ip,$self,1);
-            Redis::expire($ip,$this->ip_expire);
+        if(in_array($ip,$this->black_array)){
+            throw new BlackListException('您已被服务商停止访问,请联系服务商解决');
         }
-        //访问成功
         return true;
-
     }
+
 
     /**
      * @return string

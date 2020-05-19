@@ -6,8 +6,10 @@
  * Time: 17:04
  */
 
-namespace Tangzhixing1218\Listen;
+namespace Tangzhixing1218\Listen\Facade;
 
+
+use Tangzhixing1218\Listen\ListenIp;
 
 class ListenFacade extends \Illuminate\Support\Facades\Facade
 {

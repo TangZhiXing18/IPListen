@@ -18,11 +18,20 @@ class ListenServiceProvider extends \Illuminate\Support\ServiceProvider
             ,config('services.listen.ip_expire'));
         });
 
+        $this->app->singleton(BlackListIp::class, function(){
+            return new BlackListIp(config('services.listen.request_total_num'),config('services.listen.black_expire')
+                ,config('services.listen.request_one_num'));
+        });
+
+        $this->app->singleton(ForbiddenTool::class, function(){
+            return new ForbiddenTool(config('services.black_array'));
+        });
+
         $this->app->alias(ListenIp::class, 'listen');
     }
 
     public function provides()
     {
-        return [ListenIp::class, 'listen'];
+        return [ListenIp::class, 'listen',BlackListIp::class,ForbiddenTool::class];
     }
 }
